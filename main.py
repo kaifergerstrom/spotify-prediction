@@ -8,7 +8,8 @@ from sklearn.metrics import accuracy_score
 from spotipy.oauth2 import SpotifyClientCredentials
 from scipy import misc
 
-client_credentials_manager = SpotifyClientCredentials("4aff136e10844aeaa521cc7b31dd7d0b", "c765b590f728472b915749f71e2786d2")  # Initialize spotify api
+
+client_credentials_manager = SpotifyClientCredentials(os.environ["SPOTIFY_ID"], os.environ["SPOTIFY_SECRET"])  # Initialize spotify api
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)  # Create spotify object
 
 
@@ -106,8 +107,6 @@ def create_df(positives, negatives, output_file):  # Creates dataset of songs I 
 
         n_df['verdict'] = n_df['verdict'].astype('int')
         n_df.to_pickle("{}_negative".format(output_file))  # Serialize the data frame
-
-    
 
 
 def display_histogram(df, features):  # Input a array of features and automatically display all graph data
