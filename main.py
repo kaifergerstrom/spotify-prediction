@@ -1,4 +1,4 @@
-import spotipy, pickle, os, graphviz, pydotplus, io, imageio
+import spotipy, pickle, os, graphviz, pydotplus, io, imageio, argparse
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn import tree
@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 from spotipy.oauth2 import SpotifyClientCredentials
 from scipy import misc
 
-client_credentials_manager = SpotifyClientCredentials(os.environ["SPOTIFY_ID"], os.environ["SPOTIFY_SECRET"])  # Initialize spotify api
+client_credentials_manager = SpotifyClientCredentials("4aff136e10844aeaa521cc7b31dd7d0b", "c765b590f728472b915749f71e2786d2")  # Initialize spotify api
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)  # Create spotify object
 
 
@@ -152,10 +152,15 @@ def train_model(train, features):  # Input df and features to create tree, retur
 
 if __name__ == "__main__":
 
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-t", "--title", type=str, required=True, help="title of song to test")
+    ap.add_argument("-a", "--artist", type=str, required=True, help="artist of song")
+    ap.add_argument("-d", "--display", type=int, default=-1, help="Whether or not graph should be displayed")
+    args = vars(ap.parse_args())
+
     outputFile = "data/SpotifyData"  # Define prefix for serialized data file
-    displayHistogram = False
-    songTitle = "Three Little Birds"
-    songArtist = "Bob Marley & The Wailers"
+    songTitle = args['title'].strip()
+    songArtist = args['artist'].strip()
 
     # Id's of playlist with songs I like/don't like
     positive_songs = [
@@ -209,7 +214,7 @@ if __name__ == "__main__":
     
     df = pd.concat([df_pos, df_neg])  # Load the serialized dataframe  # Combine the data sets into one large one
 
-    if displayHistogram: display_histogram(df, features[:9])  # Display histogram data
+    if args["display"] > 0: display_histogram(df, features[:9])  # Display histogram data
 
     train, test = train_test_split(df, test_size=0.2)  # Split the test and training data x% for testing
 
@@ -218,7 +223,7 @@ if __name__ == "__main__":
 
     model = train_model(train, features)  # Train the model
 
-    display_tree(model, features, "data/tree.png")  # Save image of decision tree
+    #display_tree(model, features, "data/tree.png")  # Save image of decision tree
 
     song = get_song_info(songTitle, songArtist, features)
 
